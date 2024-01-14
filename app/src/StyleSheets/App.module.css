@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400&display=swap');
+
+.app {
+    font-family: 'Nunito', sans-serif;
+
+    
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+}
+
+.header {
+    width: calc(100% - 3.4em);
+}
+
+.section {
+    padding: 1em;
+    margin: 0.5em;
+    border-radius: 0.4em;
+    border-width: 0.2em;
+    border-style: solid;
+}
+
+.title {
+    
+}
+
+.status {
+    padding: 0.5em;
+    border-radius: 0.4em;
+    border-width: 0.2em;
+    border-style: solid;
+    font-weight: bold;
+    
+}
+.statusOK {
+    color: #15d1af;
+}
+.statusERROR {
+    color: grey;
+    cursor: pointer;
+}
+
+.button {
+    cursor: pointer;
+
+    text-align: center;
+    width: 10em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+
+    margin: 0.5em;
+    border-radius: 1em;
+    border-width: 0.2em;
+    border-color: black;
+    border-style:   solid;
+}
+
+.disabled {
+    background-color: #EEEEEE;
+    cursor:not-allowed;
+
+}
+
+.form {
+    display: flex;
+}
+
+input {
+    font-family: 'Nunito', sans-serif;
+}
+select {
+    font-family: 'Nunito', sans-serif;
+}
+
+.task {
+    display: flex;
+    align-items: center;
+}
+
+.trash {
+    cursor: pointer;
+}
