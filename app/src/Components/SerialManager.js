@@ -1,68 +1,49 @@
-/*
+
 class SerialManager {
     constructor(){
-
+        this.decoder = new TextDecoderStream();
+        this.encoder = new TextEncoderStream();
     }
-
     async connect(){
-        port.current = await navigator.serial.requestPort();
-        await (port.current).open({ baudRate: 9600 });
-        setConnected(true);
-        updateButtonDisabled(Array(buttonNames.length).fill(false));
-
-        
-        const decoder = new TextDecoderStream();
-        ((port.current).readable).pipeTo(decoder.writable);
-        reader.current = (decoder.readable).getReader();
-        
-
-        const encoder = new TextEncoderStream();
-        (encoder.readable).pipeTo((port.current).writable);
-        writer.current  = (encoder.writable).getWriter();
-
-        //readFrom();
-        
-        let port;
         try{
-        port = await navigator.serial.requestPort();
-        } catch (e){
-        return; //No port specified
+            this.port = await navigator.serial.requestPort();
+        }catch(e){
+            return false;
         }
-        setConnected("CONNECTING...")
-        try{
-        await (port).open({ baudRate: 9600 });
-        }catch (e){
-        //
-        }
+        await (this.port).open({ baudRate: 9600 });   
 
-        setConnected("CONNECTED");
-        setButtonDisabled(Array(buttonNames.length).fill(false));
+        //((this.port).readable).pipeTo((this.decoder).writable);
+        ((this.encoder).readable).pipeTo((this.port).writable);
         
+        this.writer = ((this.encoder).writable).getWriter();
+        //this.reader = ((this.decoder).readable).getReader();
+        return true;
     }
 
-    async readFrom(){
-    
+    //Not used
+    async readFrom(callback){
+        
         while(true){
-            const { value, done } = await (reader.current).read();
+            const { value, done } = await (this.reader).read();
             if (value) {
-                for(let i = 0; i < value.length; i++){
-                toggleButton(parseInt(value[i]), false);
+                for(let i = 0; i < value.length; i++)
+                {
+                    console.log(value[i])
+                    callback(i);
                 }
             }
             if (done) {
                 console.log('DONE', done);
-                (reader.current).releaseLock();
+                (this.reader).releaseLock();
                 break;
             }
         }
     }
 
-    async writeTo(line){
-    
-        (writer.current).write(line);
+    writeTo(line){
+        (this.writer).write(line);
         
-        (writer.current).releaseLock();
     }
 }
 
-export default SerialManager;*/
+export default SerialManager;

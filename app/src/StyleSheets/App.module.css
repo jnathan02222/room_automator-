@@ -63,6 +63,9 @@
     border-color: black;
     border-style:   solid;
 }
+.button:active {
+    background-color: #EFEFEF;
+}
 
 .disabled {
     background-color: #EEEEEE;

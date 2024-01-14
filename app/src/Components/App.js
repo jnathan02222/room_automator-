@@ -1,21 +1,19 @@
 import appStyles from '../StyleSheets/App.module.css'
 import React, {useState, useEffect, useRef} from 'react'
-//import SerialManager from './SerialManager.js'
+import SerialManager from './SerialManager.js'
 function App() {
   const buttonNames = ["Toggle lights", "Water plant"] //Edit this to add more buttons
   
   const [connected, setConnected] = useState(false);
-
   const [buttonDisabled, setButtonDisabled] = useState([]);
-  const buttonDisabledRef = useRef();
-
   const [schedule, setSchedule] = useState([]);
-  const scheduleRef = useRef([]);
 
+  const buttonDisabledRef = useRef();
+  const scheduleRef = useRef([]);
   const form = useRef();
   const timerList = useRef([]);
 
-  //const serialManager = useRef(new SerialManager());
+  const serialManager = useRef(new SerialManager());
 
 
   useEffect(
@@ -38,12 +36,17 @@ function App() {
     }
   ,[]);
   
-  function connect(){
-
+  async function connect(){
+    const success=  await (serialManager.current).connect();
+    if(success){
+      setConnected(true);
+      updateButtonDisabled(Array(buttonNames.length).fill(false));
+    }
+    //await (serialManager.current).readFrom((i) => {toggleButton(i, false)});
   }
 
   /*
-  Functions for Cookies
+  COOKIE FUNCTIONS
   */
   function setCookie(schedule, exdays){
     const d = new Date();
@@ -68,9 +71,9 @@ function App() {
     }
     updateSchedule(newSchedule);
   }
-
-  
-
+  /*
+  SCHEDULE FUNCTIONS
+  */
   //Must use ref for current value
   function checkSchedule(previousTime) {
     const date = new Date();
@@ -86,34 +89,12 @@ function App() {
         }
       }
     }
-
-    
-
     (timerList.current).push(setTimeout(()=>{checkSchedule(time)}, 1000));
     
   }
-
-  function handleButtonClick(key){
-    if((buttonDisabledRef.current)[key]){
-      return;
-    }
-    //Disable button
-    toggleButton(key, true);
-
-    //Send info
-    //writeTo(key.toString())
-  }
-
-  function toggleButton(key, value){
-    const buttonDisabledNew = [...(buttonDisabledRef.current)];
-    buttonDisabledNew[key] = value;
-    updateButtonDisabled(buttonDisabledNew);
-  }
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const newSchedule = [...schedule];
-
     const time = (form.current)["time"].value;
     let index = 0;
     for(let i = 0; i < newSchedule.length; i++){
@@ -121,34 +102,41 @@ function App() {
         index = i + 1;
       }
     }
-
     newSchedule.splice(index, 0, {time: time, key: (form.current)["tasks"].selectedIndex});
-    
-    
     (form.current).reset();
-
     updateSchedule(newSchedule);
-
-    
   }
-
   function removeTask(i){
     const newSchedule = [...schedule];
     newSchedule.splice(i, 1);
 
     updateSchedule(newSchedule);
   }
-
   function updateSchedule(newSchedule) {
     setSchedule(newSchedule);
     scheduleRef.current = newSchedule;
     setCookie(newSchedule, 365);
   }
 
+  /*
+  BUTTON FUNCTIONS
+  */
+  function handleButtonClick(key){
+    if((buttonDisabledRef.current)[key]){
+      return;
+    }
+    //toggleButton(key, true);
+
+    (serialManager.current).writeTo(key.toString());
+  }
+  function toggleButton(key, value){
+    const buttonDisabledNew = [...(buttonDisabledRef.current)];
+    buttonDisabledNew[key] = value;
+    updateButtonDisabled(buttonDisabledNew);
+  }
   function updateButtonDisabled(newButtonDisabled){
     setButtonDisabled(newButtonDisabled);
     buttonDisabledRef.current = newButtonDisabled;
-
   }
 
   return (
@@ -158,10 +146,8 @@ function App() {
           <h1 className={appStyles.title}>HUB</h1>
           <div onClick={connected ? ()=>{} : connect} className={appStyles.status + " " + (connected ? appStyles.statusOK  :  appStyles.statusERROR)}>{connected ? "CONNECTED" : "DISCONNECTED"}</div>
         </div>
+
         <div className={appStyles.container}>
-          
-
-
           <div className={appStyles.section}>
           {
             buttonNames.map(
@@ -184,8 +170,6 @@ function App() {
                     }
                   )
                 }
-              
-                
               </select>
               <input type="submit"/>
             </form>
